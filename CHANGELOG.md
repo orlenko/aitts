@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-05-23
+
 ### Fixed
 - `aitts` no longer dumps a traceback when a URL can't be fetched — emits a one-line error (e.g. `aitts: HTTP 403 fetching <url>`) and exits 1.
 - URL downloads now fall back to a browser-shaped User-Agent when trafilatura's default UA is rejected. Paywalled / JS-rendered pages still fail, but with a clean message pointing at the cause.
