@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
@@ -153,3 +154,60 @@ def test_merge_parts_skips_when_ffmpeg_missing(tmp_path, monkeypatch, capsys):
 def test_merge_parts_skips_when_no_parts(tmp_path, monkeypatch):
     monkeypatch.setattr("aitts.cli.shutil.which", lambda name: "/usr/bin/ffmpeg")
     assert _merge_parts(tmp_path, []) is None
+
+
+# ---------- error UX ----------
+
+
+def test_main_returns_1_and_no_traceback_on_runtime_error(monkeypatch, capsys):
+    from aitts.cli import main
+
+    def boom(args):
+        raise RuntimeError("HTTP 403 fetching https://example.com/walled")
+
+    monkeypatch.setattr("aitts.cli.convert_to_speech", boom)
+    monkeypatch.setattr("sys.argv", ["aitts", "https://example.com/walled"])
+    rc = main()
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "aitts: HTTP 403" in err
+    assert "Traceback" not in err
+
+
+def test_download_html_uses_urllib_fallback_when_trafilatura_returns_none(monkeypatch):
+
+    from aitts.cli import _download_html
+
+    monkeypatch.setattr("aitts.cli.trafilatura.fetch_url", lambda url: None)
+
+    class FakeResponse:
+        headers = type("H", (), {"get_content_charset": lambda self: "utf-8"})()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b"<html><body>fallback content</body></html>"
+
+    monkeypatch.setattr(
+        "aitts.cli.urllib.request.urlopen",
+        lambda req, timeout=None: FakeResponse(),
+    )
+    html = _download_html("https://example.com/blocked")
+    assert "fallback content" in html
+
+
+def test_download_html_raises_clean_http_error(monkeypatch):
+    from aitts.cli import _download_html
+
+    monkeypatch.setattr("aitts.cli.trafilatura.fetch_url", lambda url: None)
+
+    def raise_403(req, timeout=None):
+        raise urllib.error.HTTPError(req.full_url, 403, "Forbidden", {}, None)
+
+    monkeypatch.setattr("aitts.cli.urllib.request.urlopen", raise_403)
+    with pytest.raises(RuntimeError, match="HTTP 403"):
+        _download_html("https://example.com/walled")

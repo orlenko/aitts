@@ -64,7 +64,12 @@ aitts long.txt --merge          # also produces a single merged.mp3 via ffmpeg
 
 Output lands in `${XDG_DATA_HOME:-~/.local/share}/aitts/<slug>/<timestamp>/`, containing one `partNN.mp3` per chunk plus a `playlist.m3u`. Override the base directory with `AITTS_DATA_DIR=/some/path`.
 
-URLs go through [trafilatura](https://github.com/adbar/trafilatura) for clean article extraction.
+URLs go through [trafilatura](https://github.com/adbar/trafilatura) for clean article extraction, with a browser User-Agent fallback for sites that reject default library UAs. Paywalled or heavily JS-rendered pages (NYT, many Substack premium posts) will fail with a clean error — the workaround is to save the article text yourself and pipe it in:
+
+```sh
+pbpaste | aitts -            # from clipboard
+cat saved-article.txt | aitts -
+```
 
 ### Flags
 

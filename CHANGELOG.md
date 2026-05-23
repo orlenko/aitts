@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `aitts` no longer dumps a traceback when a URL can't be fetched — emits a one-line error (e.g. `aitts: HTTP 403 fetching <url>`) and exits 1.
+- URL downloads now fall back to a browser-shaped User-Agent when trafilatura's default UA is rejected. Paywalled / JS-rendered pages still fail, but with a clean message pointing at the cause.
+
 ### Changed
 - `aitts` now uses [trafilatura](https://github.com/adbar/trafilatura) for URL article extraction instead of the unmaintained `newspaper3k`. Drops `lxml_html_clean` (transitive workaround) along with it.
 - `aitts` chunk generation runs in parallel (default 4 workers, configurable via `--concurrency`). Failed chunks no longer abort the whole run — the playlist is written with successful parts and a stderr note about misses.

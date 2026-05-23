@@ -7,6 +7,8 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
@@ -21,6 +23,16 @@ from .paths import _expand, data_dir
 from .synthesis import DEFAULT_MODEL, DEFAULT_VOICE, VOICES, synthesize
 
 DEFAULT_CONCURRENCY = 4
+
+# Trafilatura's default UA is blocked by many content sites — fall back to one
+# that looks like a real browser so we get past lazy bot filters. Paywalls and
+# JS-rendered content will still fail, just with a clean error message instead
+# of a traceback.
+BROWSER_UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/120.0.0.0 Safari/537.36"
+)
 
 
 def split_text(text: str, max_length: int = 4000) -> list[str]:
@@ -47,16 +59,41 @@ def split_text(text: str, max_length: int = 4000) -> list[str]:
     return chunks
 
 
+def _download_html(url: str) -> str:
+    """Download `url`. Try trafilatura first, fall back to urllib with a browser UA."""
+    html = trafilatura.fetch_url(url)
+    if html:
+        return html
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": BROWSER_UA,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            charset = resp.headers.get_content_charset() or "utf-8"
+            return resp.read().decode(charset, errors="replace")
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"HTTP {e.code} fetching {url}") from None
+    except (urllib.error.URLError, TimeoutError) as e:
+        reason = getattr(e, "reason", str(e))
+        raise RuntimeError(f"Network error fetching {url}: {reason}") from None
+
+
 def fetch_url_text(url: str) -> str:
     """Download `url` and extract main article text (title + body)."""
-    html = trafilatura.fetch_url(url)
-    if not html:
-        raise RuntimeError(f"Failed to download {url}")
+    html = _download_html(url)
     body = trafilatura.extract(
         html, url=url, favor_precision=True, include_comments=False
     )
     if not body:
-        raise RuntimeError(f"Could not extract readable text from {url}")
+        raise RuntimeError(
+            f"Could not extract readable text from {url} "
+            "(site may require JavaScript or a subscription)."
+        )
     metadata = extract_metadata(html, default_url=url)
     title = metadata.title if metadata else None
     return f"{title}\n\n{body}" if title else body
@@ -249,5 +286,9 @@ def main() -> int:
     args = parser.parse_args()
     if args.concurrency < 1:
         parser.error("--concurrency must be >= 1")
-    convert_to_speech(args)
+    try:
+        convert_to_speech(args)
+    except RuntimeError as e:
+        print(f"aitts: {e}", file=sys.stderr)
+        return 1
     return 0
