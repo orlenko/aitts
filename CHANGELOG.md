@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `aitts` now uses [trafilatura](https://github.com/adbar/trafilatura) for URL article extraction instead of the unmaintained `newspaper3k`. Drops `lxml_html_clean` (transitive workaround) along with it.
+- `aitts` chunk generation runs in parallel (default 4 workers, configurable via `--concurrency`). Failed chunks no longer abort the whole run — the playlist is written with successful parts and a stderr note about misses.
+- Removed the manual retry loop in `aitts`; the OpenAI client now retries on 5xx/429 with `max_retries=3` via the SDK.
+- `aitts --play` is now portable: prefers `vlc` from `PATH`, falls back to `VLC.app` on macOS.
+
+### Added
+- `aitts` matches `aisay`'s flag set: `-v/--voice`, `-m/--model`, `-i/--instructions`, `-s/--speed`.
+- `aitts -` reads from stdin and tags the output dir with a `stdin-<timestamp>` stem.
+- `aitts --merge` concatenates parts into a single `merged.mp3` via `ffmpeg` (when available).
+
 ## [0.3.0] — 2026-05-22
 
 First public release on PyPI.

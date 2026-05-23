@@ -29,8 +29,7 @@ dependencies = [
     "openai>=1.55",
     "python-dotenv>=1.0",
     "python-slugify>=8.0",
-    "newspaper3k>=0.2.8",
-    "lxml_html_clean>=0.4",
+    "trafilatura>=2.0",
 ]
 
 [project.urls]

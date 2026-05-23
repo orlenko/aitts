@@ -22,4 +22,4 @@ def get_client() -> OpenAI:
     if not os.getenv("OPENAI_API_KEY"):
         print(_MISSING_KEY_MSG, file=sys.stderr)
         raise SystemExit(2)
-    return OpenAI()
+    return OpenAI(max_retries=3)

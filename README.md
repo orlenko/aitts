@@ -57,11 +57,28 @@ If a message has been waiting in the queue longer than `--max-wait` seconds by t
 ```sh
 aitts samples/english-sonnet.txt
 aitts https://example.com/long-article --play
+aitts https://example.com/long-article -v nova -i "audiobook narration"
+curl -s https://example.com/raw.txt | aitts -
+aitts long.txt --merge          # also produces a single merged.mp3 via ffmpeg
 ```
 
 Output lands in `${XDG_DATA_HOME:-~/.local/share}/aitts/<slug>/<timestamp>/`, containing one `partNN.mp3` per chunk plus a `playlist.m3u`. Override the base directory with `AITTS_DATA_DIR=/some/path`.
 
-`--play` opens the playlist in VLC on macOS.
+URLs go through [trafilatura](https://github.com/adbar/trafilatura) for clean article extraction.
+
+### Flags
+
+| Flag | Description |
+|------|-------------|
+| `-v, --voice` | Voice name (default: `marin`). |
+| `-m, --model` | OpenAI TTS model (default: `gpt-4o-mini-tts`). |
+| `-i, --instructions` | Tone/style prompt. `gpt-4o-mini-tts` and newer only. |
+| `-s, --speed` | Speech speed, 0.25–4.0. |
+| `--concurrency` | Parallel chunk generation (default: 4). |
+| `--merge` | Concatenate parts into `merged.mp3` (needs ffmpeg on PATH). |
+| `--play` | Open the playlist in VLC (PATH-first, then `VLC.app` on macOS). |
+
+Pass `-` as the input to read text from stdin.
 
 ## Environment
 
