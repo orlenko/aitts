@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.11"
 
 [[package]]
-name = "aitts"
+name = "aisay"
 source = { editable = "." }
 dependencies = [
     { name = "openai" },

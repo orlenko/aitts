@@ -11,14 +11,14 @@ OpenAI-backed text-to-speech CLIs for the terminal.
 
 ```sh
 # Recommended: isolated install via pipx or uv
-pipx install aitts
-uv tool install aitts
+pipx install aisay
+uv tool install aisay
 
 # Or plain pip
-pip install aitts
+pip install aisay
 ```
 
-Both `aisay` and `aitts` land on your `PATH`. Set `OPENAI_API_KEY` in your environment or place it in a `.env` file in the working directory.
+> The PyPI distribution is `aisay` (the headline command), but it ships both `aisay` and `aitts` onto your `PATH`. Set `OPENAI_API_KEY` in your environment or place it in a `.env` file in the working directory.
 
 ## `aisay` — short-form, plays immediately
 

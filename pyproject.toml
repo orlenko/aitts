@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "aitts"
+name = "aisay"
 dynamic = ["version"]
-description = "OpenAI-backed TTS CLIs: aitts (long-form → playlist) and aisay (short-form, like macOS `say`)."
+description = "OpenAI-backed TTS CLIs: aisay (short-form, like macOS `say`) and aitts (long-form → playlist)."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }

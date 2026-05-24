@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-05-24
+
+### Changed
+- **PyPI distribution renamed from `aitts` to `aisay`** because PyPI's name normalization treats `aitts` as too similar to the existing `ai-tts` project. Install with `pipx install aisay`. The repository, the source package (`import aitts...`), and the CLI commands (`aisay`, `aitts`) are unchanged.
+
 ## [0.4.0] — 2026-05-23
 
 ### Fixed
