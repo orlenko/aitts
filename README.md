@@ -1,5 +1,9 @@
 # aitts
 
+[![CI](https://github.com/orlenko/aitts/actions/workflows/ci.yml/badge.svg)](https://github.com/orlenko/aitts/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/aisay.svg)](https://pypi.org/project/aisay/)
+[![Python](https://img.shields.io/pypi/pyversions/aisay.svg)](https://pypi.org/project/aisay/)
+
 OpenAI-backed text-to-speech CLIs for the terminal.
 
 - **`aisay`** — speak short text immediately, like macOS `say` but with OpenAI voices, tone instructions, and concurrency-safe playback.
